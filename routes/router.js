@@ -8,5 +8,6 @@ router.post("/spatient", controller.spatient);
 router.post("/addtreatment", controller.addtreatment);
 router.post("/streatment", controller.streatment);
 router.get("/log", controller.getlog);
+router.post("/del", controller.del);
 
 module.exports = router;

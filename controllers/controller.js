@@ -13,18 +13,39 @@ const controller = {
       const check = await Patient.findOne({ name: ch });
 
       if (check)
-        return res
-          .status(400)
-          .json({ success: false, msg: "patient already registered" });
+        return res.json({ success: false, msg: "patient already registered" });
 
       const patient = new Patient({
         name: ch,
       });
 
       const data = await patient.save();
-      return res.json({ success: true, data });
+      return res.json({
+        msg: "Successfully added patient",
+        success: true,
+        data,
+      });
     } catch (error) {
       return res.status(500).json({ success: false, msg: error?.message });
+    }
+  },
+
+  del: async (req, res) => {
+    try {
+      const { name } = req.body;
+      const ch = name.toLowerCase();
+      const patient = await Patient.findOne({ name: ch });
+
+      if (!patient) {
+        return res.json({ success: false, msg: "No such patient" });
+      }
+
+      await Patient.deleteOne({ name: ch });
+
+      return res.json({ success: true, msg: "Patient deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      return res.status(500).json({ success: false, msg: error.message });
     }
   },
 
@@ -111,14 +132,17 @@ const controller = {
       });
     } catch (error) {
       console.error("Error adding treatments:", error);
-      fs.appendFileSync(LOG_FILE_PATH, `Error adding treatments: ${error.message}\n`);
+      fs.appendFileSync(
+        LOG_FILE_PATH,
+        `Error adding treatments: ${error.message}\n`
+      );
       return res.json({ success: false, error: error.message });
     }
   },
 
   getlog: async (req, res) => {
     try {
-      const logData = fs.readFileSync(LOG_FILE_PATH, 'utf8');
+      const logData = fs.readFileSync(LOG_FILE_PATH, "utf8");
       return res.json({
         success: true,
         data: logData,
