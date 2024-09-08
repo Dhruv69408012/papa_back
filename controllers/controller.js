@@ -1,14 +1,13 @@
 const Patient = require("../models/patient.model");
 const fs = require("fs");
 const { google } = require("googleapis");
-const apikeys = require("./api.json");
 const SCOPE = ["https://www.googleapis.com/auth/drive"];
 
 async function authorize() {
   const jwtClient = new google.auth.JWT(
-    apikeys.client_email,
+    process.env.CLIENT_EMAIL,
     null,
-    apikeys.private_key,
+    process.env.PRIVATE_KEY,
     SCOPE
   );
 
@@ -74,16 +73,13 @@ async function deleteFile(authClient, fileId) {
   return new Promise((resolve, reject) => {
     const drive = google.drive({ version: "v3", auth: authClient });
 
-    drive.files.delete(
-      { fileId },
-      (err) => {
-        if (err) {
-          return reject("The API returned an error: " + err);
-        }
-
-        resolve();
+    drive.files.delete({ fileId }, (err) => {
+      if (err) {
+        return reject("The API returned an error: " + err);
       }
-    );
+
+      resolve();
+    });
   });
 }
 
