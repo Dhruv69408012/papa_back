@@ -1,115 +1,9 @@
 const Patient = require("../models/patient.model");
 const fs = require("fs");
-const { google } = require("googleapis");
-const SCOPE = ["https://www.googleapis.com/auth/drive"];
+const path = require("path");
+require("dotenv").config(); // Add this if you're using a .env file
 
-async function authorize() {
-  const jwtClient = new google.auth.JWT(
-    process.env.CLIENT_EMAIL,
-    null,
-    process.env.PRIVATE_KEY,
-    SCOPE
-  );
-
-  await jwtClient.authorize();
-
-  return jwtClient;
-}
-
-async function getFirstFileId(authClient, folderId) {
-  return new Promise((resolve, reject) => {
-    const drive = google.drive({ version: "v3", auth: authClient });
-
-    drive.files.list(
-      {
-        q: `'${folderId}' in parents and mimeType='text/plain'`,
-        fields: "files(id, name)",
-        pageSize: 1,
-      },
-      (err, res) => {
-        if (err) {
-          return reject("The API returned an error: " + err);
-        }
-
-        const files = res.data.files;
-        if (files.length === 0) {
-          return reject("No files found in the folder.");
-        }
-
-        resolve(files[0].id); // Return the ID of the first file found
-      }
-    );
-  });
-}
-
-async function downloadFile(authClient, fileId, localPath) {
-  return new Promise((resolve, reject) => {
-    const drive = google.drive({ version: "v3", auth: authClient });
-
-    const dest = fs.createWriteStream(localPath);
-
-    drive.files.get(
-      { fileId, alt: "media" },
-      { responseType: "stream" },
-      (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-
-        res.data
-          .on("end", () => {
-            resolve();
-          })
-          .on("error", (err) => {
-            reject(err);
-          })
-          .pipe(dest);
-      }
-    );
-  });
-}
-
-async function deleteFile(authClient, fileId) {
-  return new Promise((resolve, reject) => {
-    const drive = google.drive({ version: "v3", auth: authClient });
-
-    drive.files.delete({ fileId }, (err) => {
-      if (err) {
-        return reject("The API returned an error: " + err);
-      }
-
-      resolve();
-    });
-  });
-}
-
-async function appendAndUploadFile(authClient, localPath, folderId) {
-  return new Promise((resolve, reject) => {
-    const drive = google.drive({ version: "v3", auth: authClient });
-
-    const fileMetaData = {
-      name: "test.txt",
-      parents: [folderId],
-    };
-
-    drive.files.create(
-      {
-        resource: fileMetaData,
-        media: {
-          body: fs.createReadStream(localPath),
-          mimeType: "text/plain",
-        },
-        fields: "id",
-      },
-      (error, file) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(file);
-      }
-    );
-  });
-}
+const LOG_FILE_PATH = path.join(__dirname, "log.txt"); // Path to the local log file
 
 const controller = {
   add: async (req, res) => {
@@ -176,8 +70,6 @@ const controller = {
         };
       });
 
-      console.log(patientsWithMatchedTreatments);
-
       return res.json({
         success: "true",
         data: patientsWithMatchedTreatments,
@@ -210,24 +102,7 @@ const controller = {
         ", "
       )}\nUpdated Treatments: ${tre.join(", ")}\n\n`;
 
-      const authClient = await authorize();
-      const folderId = "14khv7ZXgbCu1vjl6r0z24-hdZNhxF_hy";
-
-      // Get the first file ID from the folder
-      const fileId = await getFirstFileId(authClient, folderId);
-
-      // Download the existing file
-      const localFilePath = "./test.txt";
-      await downloadFile(authClient, fileId, localFilePath);
-
-      // Append the new data to the local file
-      fs.appendFileSync(localFilePath, logData);
-
-      // Delete the old file
-      await deleteFile(authClient, fileId);
-
-      // Upload the updated file
-      await appendAndUploadFile(authClient, localFilePath, folderId);
+      fs.appendFileSync(LOG_FILE_PATH, logData);
 
       return res.json({
         success: true,
@@ -236,6 +111,19 @@ const controller = {
       });
     } catch (error) {
       console.error("Error adding treatments:", error);
+      fs.appendFileSync(LOG_FILE_PATH, `Error adding treatments: ${error.message}\n`);
+      return res.json({ success: false, error: error.message });
+    }
+  },
+
+  getlog: async (req, res) => {
+    try {
+      const logData = fs.readFileSync(LOG_FILE_PATH, 'utf8');
+      return res.json({
+        success: true,
+        data: logData,
+      });
+    } catch (error) {
       return res.json({ success: false, error: error.message });
     }
   },
