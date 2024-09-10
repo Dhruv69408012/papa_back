@@ -8,7 +8,7 @@ const LOG_FILE_PATH = path.join(__dirname, "log.txt"); // Path to the local log 
 const controller = {
   add: async (req, res) => {
     try {
-      const { name } = req.body;
+      const { name, roomno } = req.body;
       const ch = name.toLowerCase();
       const check = await Patient.findOne({ name: ch });
 
@@ -17,6 +17,7 @@ const controller = {
 
       const patient = new Patient({
         name: ch,
+        roomno,
       });
 
       const data = await patient.save();
@@ -71,6 +72,7 @@ const controller = {
       const { treatments } = req.body;
       const treat = treatments.split(",");
 
+      // Find patients who have any matching treatments in morning, evening, or night
       const patients = await Patient.find({
         $or: [
           { morning: { $in: treat } },
@@ -79,6 +81,7 @@ const controller = {
         ],
       });
 
+      // Map through the patients and find the matched treatments and include room no
       const patientsWithMatchedTreatments = patients.map((patient) => {
         const matchedTreatments = {
           morning: patient.morning.filter((t) => treat.includes(t)),
@@ -86,21 +89,17 @@ const controller = {
           night: patient.night.filter((t) => treat.includes(t)),
         };
         return {
+          roomno: patient.roomno, // Include room number in the result
           ...patient.toObject(),
-          matchedTreatments,
+          matchedTreatments, // Include matched treatments
         };
       });
 
-      return res.json({
-        success: "true",
-        data: patientsWithMatchedTreatments,
-      });
-    } catch (error) {
-      console.error("Error finding patients:", error);
-      return res.status(500).json({
-        success: "false",
-        message: "Error finding patients",
-      });
+      res.status(200).json(patientsWithMatchedTreatments);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "An error occurred while retrieving treatments." });
     }
   },
 
@@ -110,16 +109,18 @@ const controller = {
       const ch = name.toLowerCase();
       const tre = treatments.split(", ");
       const patient = await Patient.findOne({ name: ch });
+
       if (!patient) return res.json({ success: false });
 
       const previousTreatments = patient[time] || [];
+      const roomno = patient.roomno || "Unknown"; // Assuming 'roomno' is a field in the patient schema
 
       await Patient.updateOne({ name: ch }, { $set: { [time]: tre } });
 
       const updatedPatient = await Patient.findOne({ name: ch });
 
       const timestamp = new Date().toISOString();
-      const logData = `Timestamp: ${timestamp}\nTime Frame: ${time}\nPrevious Treatments: ${previousTreatments.join(
+      const logData = `Timestamp: ${timestamp}\nPatient Name: ${name}\nRoom Number: ${roomno}\nTime Frame: ${time}\nPrevious Treatments: ${previousTreatments.join(
         ", "
       )}\nUpdated Treatments: ${tre.join(", ")}\n\n`;
 
@@ -129,6 +130,7 @@ const controller = {
         success: true,
         message: "updated",
         data: updatedPatient,
+        log: logData,
       });
     } catch (error) {
       console.error("Error adding treatments:", error);
@@ -149,6 +151,23 @@ const controller = {
       });
     } catch (error) {
       return res.json({ success: false, error: error.message });
+    }
+  },
+
+  alldocs: async (req, res) => {
+    try {
+      // Use Mongoose's find method directly
+      const documents = await Patient.find({});
+
+      return res.json({
+        success: true,
+        data: documents,
+      });
+    } catch (error) {
+      return res.json({
+        success: false,
+        error: error.message,
+      });
     }
   },
 };

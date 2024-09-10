@@ -7,6 +7,9 @@ const patientSchema = new Schema(
     name: {
       type: String,
     },
+    roomno: {
+      type: String,
+    },
     morning: {
       type: [String],
       default: [],
