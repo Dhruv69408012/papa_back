@@ -1,0 +1,142 @@
+[
+  {
+    "roomNumber": "D2",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Tabla-1",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Tabla-2",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Tree-1",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Tree-2",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Cave-1",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "Cave-2",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "E-1",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "C3",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "A2",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "C4",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "E3",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "E4",
+    "roomType": "2Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "E5",
+    "roomType": "Single",
+    "isActive": true
+  },
+  {
+    "roomNumber": "A1",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "B1",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "B2",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "C1",
+    "roomType": "Single",
+    "isActive": true
+  },
+  {
+    "roomNumber": "C2",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "D1",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "E2",
+    "roomType": "3Share",
+    "isActive": true
+  },
+  {
+    "roomNumber": "101",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "102",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "201",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "202",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "203",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "301",
+    "roomType": "VIP",
+    "isActive": true
+  },
+  {
+    "roomNumber": "302",
+    "roomType": "VIP",
+    "isActive": true
+  }
+]
